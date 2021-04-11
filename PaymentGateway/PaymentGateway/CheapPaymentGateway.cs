@@ -43,10 +43,10 @@ namespace PaymentGateway
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 //Add error logs
-                return false;
+                throw;
             }
         }
        

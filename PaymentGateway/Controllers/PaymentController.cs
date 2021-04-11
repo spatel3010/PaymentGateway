@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PaymentGateway.Model;
 using PaymentGateway.Repository;
+using PaymentGateway.Utility;
 using System;
 
 namespace PaymentGateway.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [CustomExceptionFilter]
     public class PaymentController : ControllerBase
     {
         private IPaymentService _paymentRepository { get; set; }
@@ -20,7 +22,9 @@ namespace PaymentGateway.Controllers
         /// </summary>
         /// <param name="paymentRequest"></param>
         /// <returns></returns>
-        public ActionResult ProcessPayment(PaymentRequest paymentRequest)
+        [HttpPost]
+        [Route("ProcessPayment")]
+        public IActionResult ProcessPayment(PaymentRequest paymentRequest)
         {
             try
             {
@@ -28,9 +32,12 @@ namespace PaymentGateway.Controllers
                     return BadRequest(ModelState);
                 else
                 {
-                    _paymentRepository.ProcessPayment(paymentRequest);
                     //Process payment method call
-                    return Ok();
+                    var isSuccess = _paymentRepository.ProcessPayment(paymentRequest);
+                    if (isSuccess)
+                        return Ok();
+                    else
+                        return BadRequest(); //Need to return internal server error
                 }
             }
             catch (Exception ex)

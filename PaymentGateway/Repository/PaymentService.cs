@@ -1,10 +1,16 @@
-﻿using PaymentGateway.Model;
+﻿using Microsoft.Extensions.Configuration;
+using PaymentGateway.Model;
 using System;
 
 namespace PaymentGateway.Repository
 {
     public class PaymentService : IPaymentService
     {
+        IConfiguration _configuration;
+        public PaymentService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         /// <summary>
         /// Make payment by chosing appropriate payment gateway
         /// </summary>
@@ -17,24 +23,24 @@ namespace PaymentGateway.Repository
             {
                 if (paymentRequest.Amount <= 20)
                 {
-                    paymentGateway = new CheapPaymentGateway();
+                    paymentGateway = new CheapPaymentGateway(_configuration);
                 }
                 else if (paymentRequest.Amount > 20 && paymentRequest.Amount <= 500)
                 {
-                    paymentGateway = new ExpensivePaymentGateway();
+                    paymentGateway = new ExpensivePaymentGateway(_configuration);
                     if (!paymentGateway.IsAvailable())
-                        paymentGateway = new CheapPaymentGateway();
+                        paymentGateway = new CheapPaymentGateway(_configuration);
                 }
                 else
                 {
-                    paymentGateway = new PremiumPaymentGateway();
+                    paymentGateway = new PremiumPaymentGateway(_configuration);
                 }
                 return paymentGateway.MakePayment(paymentRequest);
             }
             catch (Exception ex)
             {
                 //Add error logs
-                return false;
+                throw;
             }
         }
     }

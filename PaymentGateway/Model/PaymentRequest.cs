@@ -12,7 +12,7 @@ namespace PaymentGateway.Model
         [Required(ErrorMessage = "Card holder name is required.")]
         public string CardHolder { get; set; }
         [Required(ErrorMessage = "Expiration date is required.")]
-        public DateTime ExpirationDate { get; set; }
+        public string ExpirationDate { get; set; }
         public string SecurityCode { get; set; }
         [Required(ErrorMessage = "Amount is required.")]
         public Decimal Amount { get; set; }

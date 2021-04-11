@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace PaymentGateway.Utility
 {
@@ -29,12 +26,30 @@ namespace PaymentGateway.Utility
             //We can log this exception message to the file or database.  
             _logger.LogError(exceptionMessage, exceptionContext.RouteData);
 
-            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            HttpStatusCode status = HttpStatusCode.InternalServerError;
+            var exceptionType = exceptionContext.Exception.GetType();
+            if (exceptionType == typeof(UnauthorizedAccessException))
             {
-                Content = new StringContent("An unhandled exception was thrown by service."),  
-                    ReasonPhrase = "Internal Server Error.Please Contact your Administrator."
-            };
-            //exceptionContext.Result = IActionResult response;
+                exceptionMessage = "Access to the Web API is not authorized.";
+                status = HttpStatusCode.Unauthorized;
+            }
+            else if (exceptionType == typeof(DivideByZeroException))
+            {
+                exceptionMessage = "Internal Server Error.";
+                status = HttpStatusCode.InternalServerError;
+            }
+            else
+            {
+                exceptionMessage = "Not found.";
+                status = HttpStatusCode.NotFound;
+            }
+            //exceptionContext.Result = new Json()
+            //{
+            //    Content = new StringContent(exceptionMessage, System.Text.Encoding.UTF8, "text/plain"),
+            //    StatusCode = status
+            //};
+
+            base.OnException(exceptionContext);
         }
     }
 }
