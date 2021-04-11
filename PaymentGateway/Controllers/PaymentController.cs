@@ -3,6 +3,8 @@ using PaymentGateway.Model;
 using PaymentGateway.Repository;
 using PaymentGateway.Utility;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PaymentGateway.Controllers
 {
@@ -29,7 +31,9 @@ namespace PaymentGateway.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    return BadRequest();
+                }
                 else
                 {
                     //Process payment method call

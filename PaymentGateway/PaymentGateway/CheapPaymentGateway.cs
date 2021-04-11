@@ -35,7 +35,7 @@ namespace PaymentGateway
                 //Do payment
                 var options = new Dictionary<string,object>();
 
-                options.Add("amount", 10);
+                options.Add("amount", paymentRequest.Amount);
 
                 options.Add("currency", "INR");
 
