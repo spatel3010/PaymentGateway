@@ -6,6 +6,6 @@ namespace PaymentGateway
     {
         int RetryCount { get; set; }
         bool IsAvailable();
-        bool MakePayment(PaymentRequest paymentRequest);
+        PaymentResponse MakePayment(PaymentRequest paymentRequest);
     }
 }

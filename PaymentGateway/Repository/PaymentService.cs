@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using PaymentGateway.Model;
+using PaymentGateway.Utility;
 using System;
 
 namespace PaymentGateway.Repository
@@ -7,39 +10,51 @@ namespace PaymentGateway.Repository
     public class PaymentService : IPaymentService
     {
         IConfiguration _configuration;
-        public PaymentService(IConfiguration configuration)
+        ILogger _logger;
+        public PaymentService(IConfiguration configuration, ILogger<PaymentService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
+
         /// <summary>
         /// Make payment by chosing appropriate payment gateway
         /// </summary>
         /// <param name="paymentRequest"></param>
         /// <returns></returns>
-        public bool ProcessPayment(PaymentRequest paymentRequest)
+        public PaymentResponse ProcessPayment(PaymentRequest paymentRequest)
         {
             IPaymentGateway paymentGateway;
+            PaymentResponse paymentResponse;
             try
             {
                 if (paymentRequest.Amount <= 20)
                 {
-                    paymentGateway = new CheapPaymentGateway(_configuration);
+                    paymentGateway = new CheapPaymentGateway(_configuration, _logger);
                 }
                 else if (paymentRequest.Amount > 20 && paymentRequest.Amount <= 500)
                 {
-                    paymentGateway = new ExpensivePaymentGateway(_configuration);
+                    paymentGateway = new ExpensivePaymentGateway();
                     if (!paymentGateway.IsAvailable())
-                        paymentGateway = new CheapPaymentGateway(_configuration);
+                        paymentGateway = new CheapPaymentGateway(_configuration, _logger);
                 }
                 else
                 {
-                    paymentGateway = new PremiumPaymentGateway(_configuration);
+                    paymentGateway = new PremiumPaymentGateway();
                 }
-                return paymentGateway.MakePayment(paymentRequest);
+
+                do
+                {
+                    paymentResponse = paymentGateway.MakePayment(paymentRequest);
+                    paymentGateway.RetryCount--;
+                }
+                while (paymentGateway.RetryCount > 0 && !(paymentResponse.Status == "Success"));
+
+                return paymentResponse;
             }
             catch (Exception ex)
             {
-                //Add error logs
+                ExceptionHelper.AddErrorLogs(ex, _logger, "PaymentRequest : " + JsonConvert.SerializeObject(paymentRequest));
                 throw;
             }
         }

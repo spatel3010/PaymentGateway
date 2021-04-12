@@ -1,25 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
-using PaymentGateway.Model;
-using Razorpay.Api;
-using System;
-using System.Collections.Generic;
+﻿using PaymentGateway.Model;
 
 namespace PaymentGateway
 {
     public class ExpensivePaymentGateway : IPaymentGateway
     {
         public int RetryCount { get; set; }
-        RazorpayClient razorpayClient;
-        IConfiguration _configuration;
 
-        public ExpensivePaymentGateway(IConfiguration configuration)
+        public ExpensivePaymentGateway()
         {
             //Register ExpensivePaymentGateway
-            RetryCount = 0;
-            _configuration = configuration;
-            var clientId = _configuration["ClientId"];
-            var clientSecret = _configuration["ClientSecret"];
-            razorpayClient = new RazorpayClient(clientId, clientSecret);
+            RetryCount = 1;
         }
 
         public bool IsAvailable()
@@ -27,27 +17,15 @@ namespace PaymentGateway
             return true;
         }
 
-        public bool MakePayment(PaymentRequest paymentRequest)
+        public PaymentResponse MakePayment(PaymentRequest paymentRequest)
         {
-            try
+            var paymentResponse = new PaymentResponse
             {
-                //Do payment
-                var options = new Dictionary<string, object>();
-
-                options.Add("amount", paymentRequest.Amount);
-
-                options.Add("currency", "INR");
-
-                Payment payment = razorpayClient.Payment.Capture(options);
-
-
-                return true;
-            }
-            catch (Exception)
-            {
-                //Add error logs
-                return false;
-            }
+                Amount = paymentRequest.Amount,
+                Status = "Success",
+                TransactionId = paymentRequest.TransactionId
+            };
+            return paymentResponse;
         }
     }
 }

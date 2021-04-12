@@ -1,22 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using PaymentGateway.Model;
 using PaymentGateway.Repository;
 using PaymentGateway.Utility;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PaymentGateway.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [CustomExceptionFilter]
     public class PaymentController : ControllerBase
     {
         private IPaymentService _paymentRepository { get; set; }
-        public PaymentController(IPaymentService paymentRepository)
+        ILogger _logger;
+
+        public PaymentController(IPaymentService paymentRepository,ILogger<PaymentController> logger)
         {
             _paymentRepository = paymentRepository;
+            _logger = logger;
         }
 
         /// <summary>
@@ -36,18 +38,18 @@ namespace PaymentGateway.Controllers
                 }
                 else
                 {
-                    //Process payment method call
-                    var isSuccess = _paymentRepository.ProcessPayment(paymentRequest);
-                    if (isSuccess)
-                        return Ok();
+                    var paymentResponse = _paymentRepository.ProcessPayment(paymentRequest);
+                    if (paymentResponse.Status == "Success")
+                        return Ok(paymentResponse);
                     else
-                        return BadRequest(); //Need to return internal server error
+                        return BadRequest(paymentResponse);
                 }
             }
             catch (Exception ex)
             {
-                throw;
-                //Add exception to logs                 
+                ExceptionHelper.AddErrorLogs(ex, _logger, "PaymentRequest : " + JsonConvert.SerializeObject(paymentRequest));
+
+                return StatusCode(500);
             }
         }
     }
