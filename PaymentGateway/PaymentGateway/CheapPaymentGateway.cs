@@ -21,19 +21,26 @@ namespace PaymentGateway
         {
             _logger = logger;
             RetryCount = 1;
-            //Register cheappaymentgateway
             _configuration = configuration;
             var clientId = _configuration["ClientId"];
             var clientSecret = _configuration["ClientSecret"];
             razorpayClient = new RazorpayClient(clientId, clientSecret);
         }
 
-
+        /// <summary>
+        /// Is Cheap payment gateway available or not
+        /// </summary>
+        /// <returns></returns>
         public bool IsAvailable()
         {
             return true;
         }
 
+        /// <summary>
+        /// Make payment using Cheap payment gateway
+        /// </summary>
+        /// <param name="paymentRequest"></param>
+        /// <returns></returns>
         public PaymentResponse MakePayment(PaymentRequest paymentRequest)
         {
             bool isPaymentSuccess = false;

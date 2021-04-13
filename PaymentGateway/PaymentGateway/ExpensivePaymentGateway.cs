@@ -12,11 +12,20 @@ namespace PaymentGateway
             RetryCount = 1;
         }
 
+        /// <summary>
+        /// Is Expensive payment gateway is available or not
+        /// </summary>
+        /// <returns></returns>
         public bool IsAvailable()
         {
             return true;
         }
 
+        /// <summary>
+        /// Make payment using Expensive payment gateway
+        /// </summary>
+        /// <param name="paymentRequest"></param>
+        /// <returns></returns>
         public PaymentResponse MakePayment(PaymentRequest paymentRequest)
         {
             var paymentResponse = new PaymentResponse

@@ -18,7 +18,7 @@ namespace PaymentGateway.Repository
         }
 
         /// <summary>
-        /// Make payment by chosing appropriate payment gateway
+        /// Make payment by choosing appropriate payment gateway
         /// </summary>
         /// <param name="paymentRequest"></param>
         /// <returns></returns>

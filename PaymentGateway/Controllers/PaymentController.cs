@@ -15,14 +15,14 @@ namespace PaymentGateway.Controllers
         private IPaymentService _paymentRepository { get; set; }
         ILogger _logger;
 
-        public PaymentController(IPaymentService paymentRepository,ILogger<PaymentController> logger)
+        public PaymentController(IPaymentService paymentRepository, ILogger<PaymentController> logger)
         {
             _paymentRepository = paymentRepository;
             _logger = logger;
         }
 
         /// <summary>
-        /// Process Payment
+        /// Process Payment after validating payment request
         /// </summary>
         /// <param name="paymentRequest"></param>
         /// <returns></returns>
